@@ -6,27 +6,36 @@
 		#inputWrapper {
 			width: 420px;
 		    height: 16px;
-		    background-color: #3D589F;
+		    background-color: #2980b9;
 		    padding: 14px;
 		    border-radius: 2px;
 		    border: none;
 		    font-family: monospace;
 		    color: #FFFFFF;
+		    line-height: 16px;
+		    word-wrap: break-word;
 		}
 		#selectedPersons {
-			width: 320px;
+			width: 448px;
 		}
 		#selectedPersons > span {
 			display: block;
-			padding: 4px;
-			border: 1px solid #ccc;
+		    padding: 12px;
+		    border: 1px solid #ccc;
+		    border-top: none;
+		    cursor: pointer;
+		    font-family: monospace;
+		}
+		#selectedPersons > span:hover {
+			background-color: #34495e;
+    		color: #FFFFFF;
 		}
 		#inputWrapper > span {
-			width: 20px;
-			text-overflow: ellipsis;
-			padding: 6px;
-			border: 1px solid #7b5858;
-			background-color: #ec008b;
+			padding: 4px;
+		    border: 1px solid #7b5858;
+		    background-color: #34495e;
+		    font-weight: bold;
+		    border-radius: 4px;
 		}
 	</style>
 </head>
