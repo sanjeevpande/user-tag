@@ -5,32 +5,56 @@
 	function Persons(persons) {
 		this.persons = persons;
 		this.isSuggestionOn = false;
+		this.suggestionChars = [];
 		this.selectedIndex = 0;
 		this.init = function() {
 			$('#inputWrapper').focus();
-			bindKeyInputs(this);
+			bindKeyEvents(this);
 			bindPersonSelection(this);
 		}
-		var bindKeyInputs = function(self) {
+		var bindKeyEvents = function(self) {
 			$('#inputWrapper').on('keypress', function(e) {
-				onInputEdit(this, self, e.which);
+				if(e.keyCode !== 8) {
+					onInputEdit(this, self, e);
+				}
 			});
 			$('#inputWrapper').on('keyup', function(e) {
 				bindBackspace(this, self, e.keyCode);
-				onInputUpdate(this, self, e.keyCode);
+				bindDropdown(this, self, e.keyCode);
 			});
 		}
-		var onInputEdit = function(inputWrapper, self, keyCode) {
+		var onInputEdit = function(inputWrapper, self, e) {
+			var keyCode = e.which;
+			if(keyCode === 0) {
+				return;
+			}
 			var enteredChar = String.fromCharCode(keyCode);
 			if(enteredChar === '@') {
 				self.isSuggestionOn = true;
 				return;
 			}
-			var textContent = inputWrapper.textContent.trim() + enteredChar;
-			filterPersons(textContent.toLowerCase(), self);
-			adjustHeight(inputWrapper, textContent);
+			if(self.isSuggestionOn && enteredChar.trim()) {
+				self.suggestionChars.push(enteredChar);
+			} else {
+				self.suggestionChars = [];
+				self.isSuggestionOn = false;
+			}
+			filterPersons(self);
+			adjustHeight(inputWrapper);
+			onEnter(inputWrapper, self, e);
 		}
-		var onInputUpdate = function(inputWrapper, self, keyCode) {
+		var onEnter = function(inputWrapper, self, e) {
+			if(e.keyCode === 13) {	// on enter key press
+				if($('#selectedPersons').children().length) {
+					e.preventDefault();
+					onPersonSelection($('#selectedPersons').children()[self.selectedIndex - 1], self);
+					return;
+				}
+				$(inputWrapper).css('height', parseInt($(inputWrapper).css('height'), 10) + 50 + 'px');
+				$(inputWrapper).css('line-height', '30px');
+			}
+		}
+		var bindDropdown = function(inputWrapper, self, keyCode) {
 			if(keyCode === 40) {	// on down arrow key press
 				var $selectedChildren = $('#selectedPersons').children();
 				if($selectedChildren.length) {
@@ -40,16 +64,9 @@
 					$($selectedChildren[self.selectedIndex - 1]).addClass('selected');
 				}
 			}
-			if(keyCode === 13) {	// on enter key press
-				if($('#selectedPersons').children().length) {
-					onPersonSelection($('#selectedPersons').children()[self.selectedIndex - 1], self);
-					return;
-				}
-				$(inputWrapper).css('height', parseInt($(inputWrapper).css('height'), 10) + 50 + 'px');
-				$(inputWrapper).css('line-height', '30px');
-			}
 		}
-		var adjustHeight = function(inputWrapper, textContent) {
+		var adjustHeight = function(inputWrapper) {
+			var textContent = inputWrapper.textContent.trim();
 			if(textContent.length > 50) {
 				var inputWrapperHeight = parseInt($(inputWrapper).css('height'), 10);
 				var height = Math.floor(textContent.length / 50) * 50;
@@ -58,15 +75,22 @@
 				$(inputWrapper).css('line-height', '30px');
 			}
 		}
+		var resetInputWrapper = function(inputWrapper, self) {
+			$('#selectedPersons').html('');
+			$(inputWrapper).css('height', '16px');
+			$(inputWrapper).css('line-height', '16px');
+			self.isSuggestionOn = false;
+			self.suggestionChars = [];
+		}
 		var bindBackspace = function(inputWrapper, self, keyCode) {
 			if(keyCode === 8) {
 				var textContent = inputWrapper.textContent.trim();
 				if(!textContent) {
-					$('#selectedPersons').html('');
-					$(inputWrapper).css('height', '16px');
-					$(inputWrapper).css('line-height', '16px');
-					self.isSuggestionOn = false;
+					resetInputWrapper(inputWrapper, self);
 					return;
+				}
+				if(self.isSuggestionOn && self.suggestionChars.length) {
+					self.suggestionChars.pop();
 				}
 				var docFrag = document.createDocumentFragment();
 				$(docFrag).append(inputWrapper.innerHTML);
@@ -80,7 +104,10 @@
 					jQuery(inputWrapper).html(docFrag);
 					placeCaretAtEnd(inputWrapper);
 				}
-				filterPersons(textContent.toLowerCase(), self);
+				if(self.isSuggestionOn && !self.suggestionChars.length) {
+					textContent = '';
+				}
+				filterPersons(self, textContent.toLowerCase());
 			}
 		}
 		var bindPersonSelection = function(self) {
@@ -91,11 +118,14 @@
 		var onPersonSelection = function(selectedItem, self) {
 			var $inputWrapper = $('#inputWrapper');
 			var wrapperString = $inputWrapper.html();
-			wrapperString = wrapperString.substring(0, wrapperString.lastIndexOf("@"));
-			$inputWrapper.html(wrapperString);
+			var lastIndex = wrapperString.lastIndexOf("@");
+			var str = wrapperString.substring(0, lastIndex);
+			$inputWrapper.html(str);
 			$inputWrapper.append('<span class="tag" contenteditable="false">'+ selectedItem.textContent +'</span>&nbsp');
+			$inputWrapper.append(wrapperString.substring(lastIndex + 2 , wrapperString.length));
 			$('#selectedPersons').html('');
 			self.isSuggestionOn = false;
+			self.suggestionChars = [];
 			placeCaretAtEnd($inputWrapper[0]);
 		}
 		var placeCaretAtEnd = function(el) {
@@ -115,15 +145,13 @@
 		        textRange.select();
 		    }
 		}
-		var filterPersons = function(textContent, self) {
-			if(!self.isSuggestionOn || !textContent) {
+		var filterPersons = function(self, textContent) {
+			if(!self.isSuggestionOn && !self.suggestionChars.length) {
 				return;
 			}
 			var suggestions = '';
-			var enteredChar = textContent.split('@');
-			enteredChar = enteredChar[enteredChar.length - 1];
-			enteredChar = enteredChar ? enteredChar.trim() : enteredChar;
-			enteredChar = enteredChar ? enteredChar.split(' ')[0] : enteredChar;
+			var enteredChar = textContent ? textContent : self.suggestionChars.join('');
+			enteredChar = enteredChar.toLowerCase();
 			self.persons.forEach(function(person) {
 			   	if(person.name.toLowerCase().startsWith(enteredChar)) {
 					suggestions += '<span class="personName">'+ person.name +'</span>';
