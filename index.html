@@ -10,7 +10,6 @@
 		    padding: 14px;
 		    border-radius: 2px;
 		    border: none;
-		    font-family: monospace;
 		    color: #FFFFFF;
 		    line-height: 16px;
 		    word-wrap: break-word;
@@ -24,7 +23,6 @@
 		    border: 1px solid #ccc;
 		    border-top: none;
 		    cursor: pointer;
-		    font-family: monospace;
 		}
 		#selectedPersons > span:hover, .selected {
 			background-color: #34495e;
@@ -37,11 +35,27 @@
 		    font-weight: bold;
 		    border-radius: 4px;
 		}
+		.desc {
+			font-size: 11px;
+    		margin-bottom: 10px;
+		}
+		.container {
+			margin: auto;
+			position: absolute;
+			top: 52%;
+			left: 50%;
+			margin-top: -9em;
+			margin-left: -18em;
+			font-family: monospace;
+		}
 	</style>
 </head>
 <body>
-	<div contenteditable="true" id="inputWrapper"></div>
-	<div id="selectedPersons"></div>
+	<div class="container">
+		<div class="desc">Please use '@' character followed by the user name to tag a user</div>
+		<div contenteditable="true" id="inputWrapper"></div>
+		<div id="selectedPersons"></div>
+	</div>
 	<script type="text/javascript" src="scripts/jquery.min.js"></script>
 	<script type="text/javascript" src="scripts/app.js"></script>
 </body>

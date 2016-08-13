@@ -1,3 +1,5 @@
+'use strict';
+
 (function($) {
 
 	function Persons(persons) {
@@ -13,9 +15,6 @@
 			$('#inputWrapper').on('keypress', function(e) {
 				onInputEdit(this, self, e.which);
 			});
-			/*$('#inputWrapper').on('keydown', function(e) {
-				onInputUpdate(this, self, e.keyCode);
-			});*/
 			$('#inputWrapper').on('keyup', function(e) {
 				bindBackspace(this, self, e.keyCode);
 				onInputUpdate(this, self, e.keyCode);
@@ -32,7 +31,7 @@
 			adjustHeight(inputWrapper, textContent);
 		}
 		var onInputUpdate = function(inputWrapper, self, keyCode) {
-			if(keyCode === 40) {
+			if(keyCode === 40) {	// on down arrow key press
 				var $selectedChildren = $('#selectedPersons').children();
 				if($selectedChildren.length) {
 					self.selectedIndex++;
@@ -41,7 +40,7 @@
 					$($selectedChildren[self.selectedIndex - 1]).addClass('selected');
 				}
 			}
-			if(keyCode === 13) {
+			if(keyCode === 13) {	// on enter key press
 				if($('#selectedPersons').children().length) {
 					onPersonSelection($('#selectedPersons').children()[self.selectedIndex - 1], self);
 					return;
@@ -52,8 +51,10 @@
 		}
 		var adjustHeight = function(inputWrapper, textContent) {
 			if(textContent.length > 50) {
-				var heightFact = Math.floor(textContent.length / 50);
-				$(inputWrapper).css('height', (50 * heightFact) + 'px');
+				var inputWrapperHeight = parseInt($(inputWrapper).css('height'), 10);
+				var height = Math.floor(textContent.length / 50) * 50;
+				height = (height > inputWrapperHeight) ? height : inputWrapperHeight;
+				$(inputWrapper).css('height', height + 'px');
 				$(inputWrapper).css('line-height', '30px');
 			}
 		}
@@ -71,7 +72,7 @@
 				$(docFrag).append(inputWrapper.innerHTML);
 				var childNodes = docFrag.childNodes;
 				var lastNode = childNodes[childNodes.length - 1];
-				if(lastNode.tagName === 'BR' || lastNode.textContent === ' ') {	//to work in firefox
+				if(lastNode.tagName === 'BR' || !lastNode.textContent.trim()) {	//to work in firefox
 					lastNode = childNodes[childNodes.length - 2];
 				}
 				if(lastNode.nodeType === 1 && lastNode.className.indexOf('tag') > -1) {
@@ -89,7 +90,9 @@
 		}
 		var onPersonSelection = function(selectedItem, self) {
 			var $inputWrapper = $('#inputWrapper');
-			$inputWrapper.html($inputWrapper.html().split('@')[0]);
+			var wrapperString = $inputWrapper.html();
+			wrapperString = wrapperString.substring(0, wrapperString.lastIndexOf("@"));
+			$inputWrapper.html(wrapperString);
 			$inputWrapper.append('<span class="tag" contenteditable="false">'+ selectedItem.textContent +'</span>&nbsp');
 			$('#selectedPersons').html('');
 			self.isSuggestionOn = false;
@@ -117,7 +120,8 @@
 				return;
 			}
 			var suggestions = '';
-			var enteredChar = textContent.split('@')[1];
+			var enteredChar = textContent.split('@');
+			enteredChar = enteredChar[enteredChar.length - 1];
 			enteredChar = enteredChar ? enteredChar.trim() : enteredChar;
 			enteredChar = enteredChar ? enteredChar.split(' ')[0] : enteredChar;
 			self.persons.forEach(function(person) {
@@ -139,7 +143,7 @@
 				persons.init();
 			},
 			error: function() {
-				console.log('error');
+				console.log('Error fetching persons json.');
 			}
 		});
 
