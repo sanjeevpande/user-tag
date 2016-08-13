@@ -4,9 +4,14 @@
 	<title></title>
 	<style type="text/css">
 		#inputWrapper {
-			width: 320px;
-			height: 32px;
-			background-color: grey;
+			width: 420px;
+		    height: 16px;
+		    background-color: #3D589F;
+		    padding: 14px;
+		    border-radius: 2px;
+		    border: none;
+		    font-family: monospace;
+		    color: #FFFFFF;
 		}
 		#selectedPersons {
 			width: 320px;
@@ -16,61 +21,19 @@
 			padding: 4px;
 			border: 1px solid #ccc;
 		}
+		#inputWrapper > span {
+			width: 20px;
+			text-overflow: ellipsis;
+			padding: 6px;
+			border: 1px solid #7b5858;
+			background-color: #ec008b;
+		}
 	</style>
 </head>
 <body>
 	<div contenteditable="true" id="inputWrapper"></div>
 	<div id="selectedPersons"></div>
-	<script type="text/javascript" src="jquery.min.js"></script>
-	<script type="text/javascript">
-		var persons = [
-			{name: 'Abhay', id: 1}, {name: 'Anil', id: 2}, {name: 'Amit', id: 3}, {name: 'Sanjeev', id: 4}, {name: 'Suyash', id: 5}, {name: 'Rakesh', id: 6}, {name: 'Pradeep', id: 7}, {name: 'Shailesh', id: 8}, {name: 'Sid', id: 9}, {name: 'Dinesh', id: 10}
-		];
-		var x = false;
-		function filterPersons(textContent) {
-			if(!x || !textContent) {
-				return;
-			}
-			var z = '';
-			var enteredChar = textContent.split('@')[1].split(' ')[0];
-			persons.forEach(function(person) {
-			   	if(person.name.toLowerCase().startsWith(enteredChar)) {
-					z += '<span class="personName">'+ person.name +'</span>';
-				}
-			});
-			$('#selectedPersons').html(z);
-		}
-		$('#inputWrapper').on('keypress', function(e) {
-			var enteredChar = String.fromCharCode(e.keyCode).toLowerCase();
-			if(enteredChar === '@') {
-				x = true;
-				return;
-			}
-			var textContent = this.textContent.trim() + enteredChar;
-			filterPersons(textContent);
-		});
-		$('#inputWrapper').on('keyup', function(e) {
-			if(e.keyCode === 8) {	//handling backspace
-
-				var a = document.createDocumentFragment();
-				$(a).append(this.innerHTML);
-				var childNodes = a.childNodes;
-				var lastNode = childNodes[childNodes.length - 1];
-				if(lastNode.nodeType === 1) {
-					a.removeChild(lastNode);
-					jQuery(this).html(a);
-				}
-
-				var textContent = this.textContent.trim();
-				filterPersons(textContent);
-			}
-		});
-		$('#selectedPersons').on('click', '.personName', function(e) {
-			var $inputWrapper = $('#inputWrapper');
-			$inputWrapper.html($inputWrapper.html().split('@')[0]);
-			$inputWrapper.append('<span>'+ this.textContent +'</span>&nbsp');
-			x = false;
-		});
-	</script>
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/app.js"></script>
 </body>
 </html>
