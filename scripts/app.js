@@ -122,7 +122,9 @@
 			var str = wrapperString.substring(0, lastIndex);
 			$inputWrapper.html(str);
 			$inputWrapper.append('<span class="tag" contenteditable="false">'+ selectedItem.textContent +'</span>&nbsp');
-			$inputWrapper.append(wrapperString.substring(lastIndex + 2 , wrapperString.length));
+			str = wrapperString.substring(10, wrapperString.length);
+			str = str.substring(str.indexOf(' '), str.length);
+			$inputWrapper.append(str);
 			$('#selectedPersons').html('');
 			self.isSuggestionOn = false;
 			self.suggestionChars = [];
