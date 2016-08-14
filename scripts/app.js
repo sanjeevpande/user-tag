@@ -36,8 +36,10 @@
 			if(self.isSuggestionOn && enteredChar.trim()) {
 				self.suggestionChars.push(enteredChar);
 			} else {
-				self.suggestionChars = [];
-				self.isSuggestionOn = false;
+				if(keyCode !== 13) {
+					self.suggestionChars = [];
+					self.isSuggestionOn = false;
+				}
 			}
 			_filterPersons(self);
 			_adjustHeight(inputWrapper);
