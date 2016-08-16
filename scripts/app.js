@@ -7,7 +7,7 @@
 		this.isSuggestionOn = false;
 		this.suggestionChars = [];
 		this.selectedIndex = 0;
-		this.isSpecialCharPressed = false;
+		this.enableSuggestion = false;
 		this.init = function() {
 			$('#inputWrapper').focus();
 			_bindKeyEvents(this);
@@ -17,7 +17,7 @@
 
 			$('#inputWrapper').on('keyup', function(e) {
 				var code = e.keyCode || e.which;
-				if (code == 0 || code == 229) { //for android chrome keycode fix
+				if (code == 0 || code == 229) { //for android chrome keycode
 			    	var value = this.innerHTML;
 			        code = value.charCodeAt(value.length - 1);
 			    }
@@ -28,7 +28,7 @@
 			});
 
 			$('#inputWrapper').on('keydown', function(e) {
-				self.isSpecialCharPressed = (e.shiftKey && e.keyCode === 50) ? true : false;
+				self.enableSuggestion = (e.shiftKey && e.keyCode === 50) ? true : false;
 				_bindBackspace(this, self, e.keyCode);
 			});
 		}
@@ -37,7 +37,7 @@
 				return;
 			}
 			var enteredChar = String.fromCharCode(keyCode);
-			if(enteredChar === '@' || (self.isSpecialCharPressed)) {
+			if(enteredChar === '@' || (self.enableSuggestion)) {
 				self.isSuggestionOn = true;
 				return;
 			}
@@ -93,6 +93,13 @@
 			self.suggestionChars = [];
 		}
 		var _bindBackspace = function(inputWrapper, self, keyCode) {
+			if(keyCode === 229) {	//for android chrome keycode
+				var value = inputWrapper.innerHTML;
+				var code = value.charCodeAt(value.length - 1);
+				if(code === 62) {
+					keyCode = 8;
+				}
+			}
 			if(keyCode === 8) {
 				var textContent = inputWrapper.textContent.trim();
 				if(!textContent) {
