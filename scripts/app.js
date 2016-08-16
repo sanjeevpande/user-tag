@@ -7,31 +7,37 @@
 		this.isSuggestionOn = false;
 		this.suggestionChars = [];
 		this.selectedIndex = 0;
+		this.isSpecialCharPressed = false;
 		this.init = function() {
 			$('#inputWrapper').focus();
 			_bindKeyEvents(this);
 			_bindPersonSelection(this);
 		}
 		var _bindKeyEvents = function(self) {
-			$('#inputWrapper').on('keypress', function(e) {
-				if(e.keyCode !== 8) {
-					_onInputEdit(this, self, e);
-				}
-			});
+
 			$('#inputWrapper').on('keyup', function(e) {
-				_bindDropdown(this, self, e.keyCode);
+				var code = e.keyCode || e.which;
+				if (code == 0 || code == 229) { //for android chrome keycode fix
+			    	var value = this.innerHTML;
+			        code = value.charCodeAt(value.length - 1);
+			    }
+			    if(e.keyCode !== 8) {
+					_onInputEdit(this, self, e, code);
+				}
+				_bindDropdown(this, self, code);
 			});
+
 			$('#inputWrapper').on('keydown', function(e) {
+				self.isSpecialCharPressed = (e.shiftKey && e.keyCode === 50) ? true : false;
 				_bindBackspace(this, self, e.keyCode);
 			});
 		}
-		var _onInputEdit = function(inputWrapper, self, e) {
-			var keyCode = e.which;
+		var _onInputEdit = function(inputWrapper, self, e, keyCode) {
 			if(keyCode === 0) {
 				return;
 			}
 			var enteredChar = String.fromCharCode(keyCode);
-			if(enteredChar === '@') {
+			if(enteredChar === '@' || (self.isSpecialCharPressed)) {
 				self.isSuggestionOn = true;
 				return;
 			}
