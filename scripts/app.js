@@ -19,8 +19,10 @@
 				}
 			});
 			$('#inputWrapper').on('keyup', function(e) {
-				_bindBackspace(this, self, e.keyCode);
 				_bindDropdown(this, self, e.keyCode);
+			});
+			$('#inputWrapper').on('keydown', function(e) {
+				_bindBackspace(this, self, e.keyCode);
 			});
 		}
 		var _onInputEdit = function(inputWrapper, self, e) {
@@ -98,7 +100,7 @@
 				$(docFrag).append(inputWrapper.innerHTML);
 				var childNodes = docFrag.childNodes;
 				var lastNode = childNodes[childNodes.length - 1];
-				if(lastNode.tagName === 'BR' || !lastNode.textContent.trim()) {	//to work in firefox
+				if(lastNode.tagName === 'BR' || lastNode.textContent === ' ') {	//to work in firefox
 					lastNode = childNodes[childNodes.length - 2];
 				}
 				if(lastNode.nodeType === 1 && lastNode.className.indexOf('tag') > -1) {
